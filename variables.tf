@@ -6,11 +6,6 @@ variable "db-password" {
   type = string
   #default="YOUR_DB_PASSWORD"
 }
-
-variable "private_key" {
-  default = "mykey"
-}
-
 variable "public_key" {
   default = "mykey.pub"
 }
