@@ -5,6 +5,6 @@
 *.tfstate
 *.tfstate.*
 
-#Primary key
+#key_pair
 mykey
 mykey.pub
