@@ -1,0 +1,76 @@
+# This is a workflow to connect and manage an RDS MySQL DB
+
+name: MySQL RDS workflow
+
+# Controls when the workflow run 
+on:
+  # Choose the triggers that are meaningfull for your use-case 
+  # I chose to trigger the pipeline manually or for each push of modif in the sql script file 
+  push:
+    branches: ["main"]
+    paths: "scriptsql.sql"
+
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        type: choice
+        description: Run SQL script
+        options:
+          - apply
+        required: true
+
+# Defines jobs within the workflow
+jobs:
+  RDS-CONNECT-DEFINE:
+    name: "RDS-Connect-Define"
+
+    # Defines environment variables for the workflow
+    env:
+      # AWS secrets
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      # you don't need SSH_AUTH_SOCK if your private-key dont have a passphrase
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      
+    # Specifies the operating system environment for the job
+    runs-on: ubuntu-latest
+
+    steps:
+      # Displays a message when the workflow is triggered by a push event
+      - name: Run on push event
+        if: github.event_name == 'push'
+        run: echo "run on push event"
+
+      # Displays a message when the workflow is manually triggered 
+      - name: Run on workflow_dispatch event
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "run on manual trigger"
+
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # You can use webfactory/ssh-agent@v0.5.4 (simpler method) if your private key don't have a passphrase
+      - name: Setup SSH with a passphrase
+        env:
+          SSH_PASSPHRASE: ${{secrets.SSH_PASSPHRASE}}
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          echo "echo $SSH_PASSPHRASE" > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
+
+      # The GitHub runner, who is eecuting the worflow, sshes into the EC2-BH
+      # The commands to run in EC2-BH should be between 'EOF' and EOF after the SSH command. 
+      # Otherwise, it will give issues as the commands after SSH command will be executed in the runner that not have permission to connect to the DB  
+      # The SQL script file should be copied from the runner to the EC2-Host before the SSH command 
+      - name: SSH into Bastion Host
+        run: |
+          scp -o StrictHostKeyChecking=no script_bd.sql ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/ 
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          export MYSQL_PWD=${{secrets.DB_PASSWORD}}
+          mysql -h ${{secrets.DATABASE_ENDPOINT}} -P 3306 -u admin < script_bd.sql
+          EOF
+  
+  
