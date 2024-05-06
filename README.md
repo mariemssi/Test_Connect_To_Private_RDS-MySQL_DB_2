@@ -11,9 +11,10 @@
 3. Set Up your AWS Credentials AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY.
         
 4. Generate SSH Key pair: `ssh-keygen -f mykey`
-   It generates 2 files mykey (private key) and mykey.pub (public key). Place the public key file in the root directory of your terraform code.
+   
+   This command generates 2 files mykey (private key) and mykey.pub (public key). Place the public key file in the root directory of your terraform code.
 
-    You can also reference an aws key pair if you have already one. You should update ec2_bastion_host.tf accordingly.
+   You can also reference an AWS key pair if you have already one. You should update ec2_bastion_host.tf accordingly.
 
    
    
@@ -21,7 +22,7 @@
    
 7. Review Terraform Plan (Optional): `terraform plan`
    
-   You can preview the changes Terraform will make to your infrastructure. For this, you should provide the Input Variables defined in variables.tf. You can define its values as default in the variables.tf file or you can define it as parameters of terraform plan and terraform apply commands
+   You can preview the changes Terraform will make to your infrastructure. For this, you should provide the Input Variables defined in variables.tf. You can define its values as default in the variables.tf file, or you can define it as parameters of terraform plan and terraform apply commands,
    or Terraform will prompt you to provide their values during the terraform apply process.
 
    😱 USERNAME and DB-PASSWORD are secrets and It's important to note that using these methods for secrets is not a best practice in production environments.
@@ -39,7 +40,7 @@
 
   ![image](https://github.com/mariemssi/Test_Connect_To_Private_RDS-MySQL_DB_2/assets/69463864/f04587e7-334f-4fff-b53f-374dfa69cd0e)
 
-  2. Trigger the pipeline by modifiying the script_bd.sql file and pushing the modification or manually like the screeshot below
+  2. Trigger the pipeline by modifiying the script_bd.sql file and pushing the modification, or by manual execution as shown in the screenshot below.
 
   ![image](https://github.com/mariemssi/Test_Connect_To_Private_RDS-MySQL_DB_2/assets/69463864/23b192fb-8e70-494e-bd9e-c314ba130c39)
 
@@ -49,8 +50,9 @@
 
 ## Destroying Test Infrastructure
   Destroy Resources (Optional): `terraform destroy`
+  
   Once you have finished testing, it's important to destroy the test environment to avoid incurring unnecessary charges from AWS 😉.
 
 Additional details can be found [here](https://medium.com/@meriemiag/exploring-ways-to-connect-to-mysql-rds-database-102aec995673)
 
-*Please note that the testing environment discussed here is intended for testing purposes only and may not conform to best practices.*
+*Please note that the environment presented here is designed solely for testing purposes and may not adhere to best practices.*
