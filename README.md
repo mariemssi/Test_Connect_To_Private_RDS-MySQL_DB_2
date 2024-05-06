@@ -50,3 +50,5 @@
 ## Destroying Test Infrastructure
   Destroy Resources (Optional): `terraform destroy`
   Once you have finished testing, it's important to destroy the test environment to avoid incurring unnecessary charges from AWS 😉.
+
+*Please note that the testing environment discussed here is intended for testing purposes only and may not conform to best practices.*
